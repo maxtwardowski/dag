@@ -22,6 +22,7 @@ type DAG struct {
 	muDAG            sync.RWMutex
 	vertices         map[interface{}]string
 	vertexIds        map[string]interface{}
+	orderedVertexIds []string
 	inboundEdge      map[interface{}]map[interface{}]struct{}
 	outboundEdge     map[interface{}]map[interface{}]struct{}
 	muCache          sync.RWMutex
@@ -94,6 +95,7 @@ func (d *DAG) addVertexByID(id string, v interface{}) error {
 
 	d.vertices[v] = id
 	d.vertexIds[id] = v
+	d.orderedVertexIds = append(d.orderedVertexIds, id)
 
 	return nil
 }

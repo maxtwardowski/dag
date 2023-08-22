@@ -1,8 +1,6 @@
 package dag
 
 import (
-	"sort"
-
 	llq "github.com/emirpasic/gods/queues/linkedlistqueue"
 	lls "github.com/emirpasic/gods/stacks/linkedliststack"
 )
@@ -24,7 +22,7 @@ func (d *DAG) DFSWalk(visitor Visitor) {
 	stack := lls.New()
 
 	vertices := d.getRoots()
-	for _, id := range reversedVertexIDs(vertices) {
+	for _, id := range reversedVertexIDs(vertices, d.orderedVertexIds) {
 		v := vertices[id]
 		sv := storableVertex{WrappedID: id, Value: v}
 		stack.Push(sv)
@@ -42,7 +40,7 @@ func (d *DAG) DFSWalk(visitor Visitor) {
 		}
 
 		vertices, _ := d.getChildren(sv.WrappedID)
-		for _, id := range reversedVertexIDs(vertices) {
+		for _, id := range reversedVertexIDs(vertices, d.orderedVertexIds) {
 			v := vertices[id]
 			sv := storableVertex{WrappedID: id, Value: v}
 			stack.Push(sv)
@@ -60,7 +58,7 @@ func (d *DAG) BFSWalk(visitor Visitor) {
 	queue := llq.New()
 
 	vertices := d.getRoots()
-	for _, id := range vertexIDs(vertices) {
+	for _, id := range vertexIDs(vertices, d.orderedVertexIds) {
 		v := vertices[id]
 		sv := storableVertex{WrappedID: id, Value: v}
 		queue.Enqueue(sv)
@@ -78,7 +76,7 @@ func (d *DAG) BFSWalk(visitor Visitor) {
 		}
 
 		vertices, _ := d.getChildren(sv.WrappedID)
-		for _, id := range vertexIDs(vertices) {
+		for _, id := range vertexIDs(vertices, d.orderedVertexIds) {
 			v := vertices[id]
 			sv := storableVertex{WrappedID: id, Value: v}
 			queue.Enqueue(sv)
@@ -86,17 +84,18 @@ func (d *DAG) BFSWalk(visitor Visitor) {
 	}
 }
 
-func vertexIDs(vertices map[string]interface{}) []string {
+func vertexIDs(vertices map[string]interface{}, order []string) []string {
 	ids := make([]string, 0, len(vertices))
-	for id := range vertices {
-		ids = append(ids, id)
+	for _, id := range order {
+		if _, ok := vertices[id]; ok {
+			ids = append(ids, id)
+		}
 	}
-	sort.Strings(ids)
 	return ids
 }
 
-func reversedVertexIDs(vertices map[string]interface{}) []string {
-	ids := vertexIDs(vertices)
+func reversedVertexIDs(vertices map[string]interface{}, order []string) []string {
+	ids := vertexIDs(vertices, order)
 	i, j := 0, len(ids)-1
 	for i < j {
 		ids[i], ids[j] = ids[j], ids[i]

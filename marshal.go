@@ -32,14 +32,17 @@ func (d *DAG) UnmarshalJSON(_ []byte) error {
 // Example:
 // dag := NewDAG()
 // data, err := json.Marshal(d)
-// if err != nil {
-//     panic(err)
-// }
+//
+//	if err != nil {
+//	    panic(err)
+//	}
+//
 // var wd YourStorableDAG
 // restoredDag, err := UnmarshalJSON(data, &wd)
-// if err != nil {
-//     panic(err)
-// }
+//
+//	if err != nil {
+//	    panic(err)
+//	}
 //
 // For more specific information please read the test code.
 func UnmarshalJSON(data []byte, wd StorableDAG) (*DAG, error) {
@@ -80,7 +83,7 @@ func (mv *marshalVisitor) Visit(v Vertexer) {
 	// Because at the time of Walk,
 	// the read lock has been used to protect the dag.
 	children, _ := mv.d.getChildren(srcID)
-	ids := vertexIDs(children)
+	ids := vertexIDs(children, mv.d.orderedVertexIds)
 	for _, dstID := range ids {
 		e := storableEdge{SrcID: srcID, DstID: dstID}
 		mv.StorableEdges = append(mv.StorableEdges, e)
